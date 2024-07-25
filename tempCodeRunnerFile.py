@@ -1,23 +1,3 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_restful import Api, Resource
-from flask_cors import CORS
-
-app = Flask(__name__)
-api = Api(app)
-CORS(app,supports_credentials=True)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.sqlite3'
-app.config['SECRET_KEY'] = 'jdhfhufhuishuhuihufhu'
-app.config['SECURITY_TOKEN_AUTHENTICATION_KEY']="myauthkey"
-app.config['SECURITY_TOKEN_AUTHENTICATION_HEADER']="myauthtoken"
-
-app.app_context().push()
-db = SQLAlchemy(app)
-
-app = Flask(__name__)
-
-#----database models---
 class User(db.Model):
     __tablename__ = 'user'
     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
@@ -54,13 +34,3 @@ class Link(db.Model):
     week_id=db.Column(db.Integer, db.ForeignKey('week.week_id'), nullable=False)
     link_order=db.Column(db.Integer,nullable=False)
     url=db.Column(db.String,nullable=False)
-
-# db.create_all()
-
-@app.route("/")
-def hello_world():
-    return "<p>Hello, Team 12!</p>"
-
-
-if __name__ == "__main__":
-    app.run()
