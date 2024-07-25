@@ -5,6 +5,8 @@
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
+  background-color: #F8EDE3;
+  color: black;
 }
 
 a,
@@ -25,11 +27,10 @@ a,
   body {
     display: flex;
     place-items: center;
+    background-color: #F8EDE3;
   }
 
   #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+    background-color: #F8EDE3;
   }
 }
