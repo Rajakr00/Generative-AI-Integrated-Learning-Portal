@@ -4,7 +4,7 @@
       You haven't registered for any courses!
     </div>
 
-    <div v-for="(course, desc) in courses" :key="index" class="course-card">
+    <div v-for="(course, index) in courses" :key="course.id" class="course-card" @click="redirectCoursePage(course.id)">
       <table class="course-details">
         <tr>
           <th class="course-name">{{ course.name }}</th>
@@ -18,9 +18,9 @@
       </table>      
     </div>
   </div>
-  </template>
+</template>
   
-  <script>
+<script>
   export default {
     name:'Dashboard',
     data() {
@@ -28,7 +28,6 @@
             user_id: this.$route.query.user_id,
             courses:[],
             no_of_courses:null,
-            response:null
         }
     },
     created() {
@@ -46,15 +45,17 @@
             if (response.ok) {
                 this.courses = data['courses']
                 this.no_of_courses=data['no_of_courses']
-                console.log(this.response);
             }
-            console.log(this.response);
         },
+      redirectCoursePage(course_id){
+        console.log('Redirecting to course ID:', course_id);
+        this.$router.push({ path: '/coursePage', query: { course_id: course_id, user_id: this.user_id } });
+      }
     }
   };
-  </script>
+</script>
   
-  <style scoped>
+<style scoped>
   .course-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(200px, 1fr));
@@ -90,5 +91,9 @@
       padding: 10px;
       text-align: center;
   }
-  </style>
+  .course-card:hover {
+    background-color: #833006;
+    cursor: pointer;
+  }
+</style>
   

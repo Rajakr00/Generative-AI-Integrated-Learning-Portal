@@ -93,10 +93,12 @@ class RegisteredCourses(Resource):
                     course_name = course_details.name
                     course_description = course_details.description
                     response['courses'].append({
+                        'id':course.course_id,
                         'name':course_name,
                         'desc':course_description
                     })
                     response['no_of_courses']=response['no_of_courses']+1
+                print(response)
                 return response, 200
             else:
                 return {'message':'No registered courses'} , 201
@@ -107,26 +109,64 @@ class StudentDashboard(Resource):
     def get(self):
         user_id = request.args.get('user_id')
         if user_id:
-            # Fetch courses for the given user_id
-            enrollments = Enrollment.query.filter_by(user_id=user_id).all()
-            courses = []
-            for enrollment in enrollments:
-                course = Course.query.get(enrollment.course_id)
-                if course:
-                    courses.append({
-                        "name": course.name,
-                        "desc": course.description
-                    })
-            no_of_courses = len(courses)
-            print(courses)
-            return jsonify({"courses": courses, "no_of_courses": no_of_courses}),200
+            user = User.query.filter_by(user_id=user_id).all()
+            if user:
+                enrollments = Enrollment.query.filter_by(user_id=user_id).all()
+                courses = []
+                for enrollment in enrollments:
+                    course = Course.query.get(enrollment.course_id)
+                    if course:
+                        courses.append({
+                            "name": course.name,
+                            "desc": course.description
+                        })
+                no_of_courses = len(courses)
+                # print(courses)
+                return jsonify({"courses": courses, "no_of_courses": no_of_courses}),200
+            else:
+                return jsonify({"message": "User not found"}), 401
         else:
             return jsonify({"message": "User ID is required"}), 400
 
+class CourseDetails(Resource):
+    def get(self):
+        user_id=request.args.get('user_id')
+        course_id=request.args.get('course_id')
+        if user_id or course_id:
+            user = User.query.filter_by(user_id=user_id).all()
+            if user:
+                enrolled = Enrollment.query.filter_by(user_id=user_id).filter_by(course_id=course_id).first()
+                if enrolled:
+                    course = Course.query.filter_by(course_id=course_id).first()
+                    course_name=course.name
+                    # print(f"course_name type: {type(course_name)}, value: {course_name}")
+                    course_weeks=Week.query.filter_by(course_id=course_id).all() #returns all the week_ids of the course 
+                    # print(course_weeks)
+                    details={}
+                    for w in course_weeks: #for each week of a course
+                        w_id=w.week_id
+                        w_links = Link.query.filter_by(week_id=w_id).order_by(Link.link_order).all() #all the links of a week
+                        # print(w_links)
+                        w_link_details = []
+                        for l in w_links:
+                            w_link_details.append(l.url)
+                        # print(w_link_details)
+                        details[w.week_no] = w_link_details
+                    # print(details)
+                    return ({"details":details,"course_name":course_name}), 200
+                    # return ({"course_name":course_name}), 200
+                else:
+                    return ({"message":"Not enrolled to this course"}), 401
+            else:
+                return ({"message": "User not found"}), 401
+        else:
+            return ({"message": "User ID and Course ID is required"}), 400
+
+
 # Add the resource to the API
-# api.add_resource(StudentDashboard, '/api/studentDashboard')
 api.add_resource(StudentLogin,'/api/studentLogin') 
 api.add_resource(RegisteredCourses,'/api/studentDashboard') 
+api.add_resource(CourseDetails, '/api/coursePage')
 
 @app.route("/")
 def hello_world():
