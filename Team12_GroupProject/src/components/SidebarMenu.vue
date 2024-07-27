@@ -5,24 +5,18 @@
     </div>
     <div :class="['sidebar', { 'sidebar-closed': !isSidebarOpen }]">
       <div class="sidebar-header">
-        <h2>{{name}}</h2>
+        <h2>{{ name }}</h2>
       </div>
       <ul class="sidebar-menu">
-      <li v-for="(week, index) in weeks" :key="index" class="menu-item">
-        {{ week.week }}
-            <li v-for="(topic, idx) in week.urls" :key="idx" class="sub-topic">
-              Topic {{ idx + 1 }}
+        <li v-for="(week, index) in weeks" :key="index" class="menu-item">
+          {{ week.week }}
+          <ul>
+            <li v-for="(url, idx) in week.urls" :key="idx">
+              <a href="#" @click.prevent="handleTopicClick(url)"> Topic {{ idx + 1 }}</a>
             </li>
-      </li>
-      </ul>
-      <!-- <ul class="sidebar-menu">
-        <li v-for="item in weeks" :key="index" class="menu-item">
-          <router-link :to="item.link">
-            <i :class="item.icon"></i>
-            <span v-if="isSidebarOpen">{{ item.name }}</span>
-          </router-link>
+          </ul>
         </li>
-      </ul> -->
+      </ul>
     </div>
   </div>
 </template>
@@ -43,21 +37,24 @@ export default {
   data() {
     return {
       isSidebarOpen: true
-    };
+    }
   },
   methods: {
-    toggleSidebar() {
-      this.isSidebarOpen = !this.isSidebarOpen;
+    handleTopicClick(url) {
+      this.$emit('selectTopic', url)
     },
+    toggleSidebar() {
+      this.isSidebarOpen = !this.isSidebarOpen
+    }
   }
-};
+}
 </script>
 
 <style>
-.sidebarmenu{
+.sidebarmenu {
   width: 100px;
   height: 100vh;
-  background-color: #8D493A;
+  background-color: #8d493a;
   color: black;
   display: flex;
   flex-direction: column;
@@ -65,16 +62,16 @@ export default {
   left: 0;
   top: 0;
   transition: transform 0.3s ease;
-  overflow: hidden; 
+  overflow: hidden;
   z-index: 1000;
 }
 
-.sidebar{
+.sidebar {
   width: 200px;
   height: 100vh;
   padding-top: 70px;
-  background-color: #8D493A;
-  color: #F8EDE3;
+  background-color: #8d493a;
+  color: #f8ede3;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -88,12 +85,12 @@ export default {
 .sidebar-header {
   padding: 20px;
   text-align: center;
-  margin-left:10px;
+  margin-left: 10px;
   border-bottom: 1px solid #9f9999;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   font-weight: bolder;
   font-size: 20px;
-  color: #F8EDE3;
+  color: #f8ede3;
 }
 
 .sidebar-menu {
@@ -104,23 +101,22 @@ export default {
 
 .menu-item {
   padding: 15px;
-  padding-left:20px;
-  margin-left:10px;
+  padding-left: 20px;
+  margin-left: 10px;
   border-bottom: 1px solid #9f9999;
   font-family: 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   font-weight: bolder;
   font-size: 20px;
-  color: #F8EDE3;
+  color: #f8ede3;
 }
 
-.sub-topic{
+.sub-topic {
   padding: 5px;
-  padding-left:15px;
+  padding-left: 15px;
   font-family: 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   font-weight: bolder;
   font-size: 15px;
-  color: #F8EDE3;
-
+  color: #f8ede3;
 }
 
 .sub-topic :hover {
@@ -128,8 +124,8 @@ export default {
   cursor: pointer;
 }
 
-.toggleButtonDiv{
-  margin:10px;
+.toggleButtonDiv {
+  margin: 10px;
 }
 
 .toggleBtn {
@@ -137,8 +133,8 @@ export default {
   height: 50px;
   position: absolute;
   top: 20px;
-  left: 100%; 
-  margin-left: -80px; 
+  left: 100%;
+  margin-left: -80px;
   /* background-color: #a00e0e; */
   /* color: #fff; */
   border: none;
