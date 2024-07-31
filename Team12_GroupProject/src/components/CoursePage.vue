@@ -1,13 +1,48 @@
 <template>
-  <SidebarMenu :name="course_name" :weeks="weeks_no" @selectTopic="selectTopic" />
-  <VideoPlayer :videoUrl="selectedVideoUrl" />
-  <div class="body">
-    <p>
-      Youtube Video URL :
-      <span>{{ selectedVideoUrl }}</span>
-      <button @click="copyToClipboard(selectedVideoUrl)">Copy Link</button>
-    </p>
+
+  
+  <SidebarMenu :name="course_name" :weeks="weeks_no" @selectTopic="selectTopic" /> 
+
+
+  <div class="row m-1" v-if="checkSummary">
+    <div class="col-sm-7 p-0">
+      <VideoPlayer :videoUrl="selectedVideoUrl" />
+    </div>
+    <div class="col p-1">
+  
+      <div class="card vh-100 m-2">
+      <div class="card-header d-flex row">
+        <div class="d-flex justify-content-between col align-self-center">
+          <span class="fs-6 align-self-center">Summary</span>
+          <span>
+            <a class="btn btn-primary w-auto text-end col" @click="getSummary"><i class='bx bx-refresh bx-sm'></i></a></span>
+        </div>
+        <div class="col"></div>
+  
+        <div class="col d-flex justify-content-end ">
+          <button class="btn btn-secondary" @click="closeSummary"><i class='bx bx-x bx-sm'></i></button>
+        </div>
+      </div>
+      <div class="card-body overflow-scroll" v-html="summary">
+      </div>
+      </div>
+    </div>
   </div>
+
+  <div class="row m-1" v-else>
+    <div class="row">
+      <VideoPlayer :videoUrl="selectedVideoUrl" />
+    </div>
+    <div class="row">
+    <div class="col"></div>
+    <div class="col d-flex justify-content-center">
+    <button class="btn btn-primary" @click="getSummary">Get Summary</button>
+    </div>
+    <div class="col"></div>
+    </div>
+  </div>
+
+
 </template>
 
 <script>
@@ -30,13 +65,46 @@ export default {
       details: [],
       course_name: null,
       weeks_no: [],
-      selectedVideoUrl: ''
+      selectedVideoUrl: '',
+      summary:'',
     }
   },
   mounted() {
     this.setInitialVideo()
   },
+  computed:{
+  checkSummary(){
+    console.log(this.summary);
+    return this.summary;
+  },
+  },
   methods: {
+
+    closeSummary(){
+
+    this.summary='';
+
+    },
+
+
+    async getSummary(){
+      const response = await fetch(
+        `http://127.0.0.1:5000//api/YTSummary?video_url=${this.selectedVideoUrl}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      const data = await response.json()
+      if (response.ok) {
+        this.transcript = data['summary']
+        console.log(this.summary)
+      } else this.message = data['message']
+
+    },
+
     async getCoursesDetails() {
       const response = await fetch(
         `http://127.0.0.1:5000//api/coursePage?user_id=${this.user_id}&course_id=${this.course_id}`,

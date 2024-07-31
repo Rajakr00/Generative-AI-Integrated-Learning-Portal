@@ -1,7 +1,11 @@
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, request, make_response, jsonify, session
 from flask_restful import Api, Resource
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from youtube_transcript_api import YouTubeTranscriptApi
+from pytube import extract
+import requests
+import markdown
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -59,6 +63,58 @@ class Link(db.Model):
 
 #-----------API Controllers-----------
 
+class YTSummary(Resource):
+    def get(self):
+        url = request.args.get('video_url')
+        vid=extract.video_id(url)
+        srt = YouTubeTranscriptApi.get_transcript(vid)
+        subtitles=[]
+        for i in srt:
+            subtitles.append(i['text'])
+        full_srt = "\n".join(subtitles)
+        if full_srt:
+
+            api_key = "AIzaSyByHZtQ1cLVH8lGVuJzeIZAuSaMuIsqffg"
+            url = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key="+api_key
+
+            headers = {
+                'Content-Type': 'application/json',
+            }
+            data = { "contents":[ {"role": "user","parts":[{"text": full_srt}]} ]}
+
+            response = requests.post(url, headers=headers, json=data)
+            message = response.json()['candidates'][0]['content']['parts'][0]['text']
+
+            html = markdown.markdown(message)
+
+            return { 'summary':html }, 200 
+        else:
+            return { 'message':'failed to fetch transcript'}, 401
+
+
+class Chat(Resource):
+    def get(self):
+        query = request.args.get('query')
+        if query:
+
+            api_key = "AIzaSyByHZtQ1cLVH8lGVuJzeIZAuSaMuIsqffg"
+            url = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key="+api_key
+
+            headers = {
+                'Content-Type': 'application/json',
+            }
+            data = { "contents":[ {"role": "user","parts":[{"text": query}]} ]}
+
+            response = requests.post(url, headers=headers, json=data)
+            message = response.json()['candidates'][0]['content']['parts'][0]['text']
+
+            html = markdown.markdown(message)
+
+            return { 'message':html }, 200 
+        else:
+            return { 'message':'failed to fetch transcript'}, 401
+
+
 class StudentLogin(Resource):
     def post(self):
         data=request.get_json()
@@ -66,9 +122,13 @@ class StudentLogin(Resource):
         if user:
             if user.role == 'student':
                 if (user.password == data['password']):
+                    #session['username']=user.name
+                    #session['user_id']=user.user_id
                     response=({
                         'message': 'User login successful',
-                        'user_id': user.user_id
+                        'user_id': user.user_id,
+                        'user_name':user.name,
+
                     })
                     message=make_response(response)
                     return message
@@ -78,6 +138,7 @@ class StudentLogin(Resource):
                 return {'message':'Only users can access this page'} , 403 #Unauthorised 
         else:
             return {'message':'Invalid username'} , 401 #Forbidden
+
 
 class RegisteredCourses(Resource):
     
@@ -167,6 +228,8 @@ class CourseDetails(Resource):
 api.add_resource(StudentLogin,'/api/studentLogin') 
 api.add_resource(RegisteredCourses,'/api/studentDashboard') 
 api.add_resource(CourseDetails, '/api/coursePage')
+api.add_resource(YTSummary, '/api/YTSummary')
+api.add_resource(Chat, '/api/Chat')
 
 @app.route("/")
 def hello_world():

@@ -1,6 +1,6 @@
 <template>
   <div class="video-player">
-    <div v-if="videoUrl" class="video-container">
+    <div v-if="videoUrl" class="video-container m-1">
       <iframe
         :src="videoUrl"
         frameborder="0"
@@ -8,7 +8,7 @@
         allowfullscreen
       ></iframe>
     </div>
-    <div v-else class="video-container">
+    <div v-else class="video-container m-1">
       <p>No Video Selected</p>
     </div>
   </div>

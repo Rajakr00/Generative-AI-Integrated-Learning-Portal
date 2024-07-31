@@ -1,15 +1,17 @@
 <template>
-  <div class="course-grid">
+  <div class="row m-3">
     <div v-if="no_of_courses == 0" style="text-align: center">
       You haven't registered for any courses!
     </div>
-
+    <h3 class="text-start m-2">My Current Courses</h3>
     <div
       v-for="course in courses"
       :key="course.id"
-      class="course-card"
+      class="card text-dark m-3" style="max-width: 18rem;"
       @click="redirectCoursePage(course.id)"
     >
+      
+      <!--
       <table class="course-details">
         <tr>
           <th class="course-name">{{ course.name }}</th>
@@ -21,7 +23,42 @@
           <td class="course-desc">{{ course.desc }}</td>
         </tr>
       </table>
+      -->
+      <div class="card-header">{{ course.name }}</div>
+      <div class="card-body">
+        <p class="card-text">{{ course.desc }}</p>
+      </div>
     </div>
+
+    <h3 class="text-start m-2">AI helper</h3>
+    <div class="card text-dark m-3" style="max-width: 18rem;"
+      @click="redirectCoursePage(course.id)"
+    >
+      <div class="card-header">Pdf Summarization</div>
+      <div class="card-body">
+        <p class="card-text">Get summary of pdf files</p>
+      </div>
+    </div>
+
+    <div class="card text-dark m-3" style="max-width: 18rem;"
+      @click="redirectCoursePage(course.id)"
+    >
+      <div class="card-header">Lecture Summary</div>
+      <div class="card-body">
+        <p class="card-text">Get key concepts and summary of video lectures</p>
+      </div>
+    </div>
+
+    <div class="card text-dark m-3" style="max-width: 18rem;"
+      @click="redirectChatbot"
+    >
+      <div class="card-header">Chatbot</div>
+      <div class="card-body">
+        <p class="card-text">Ask any doubt</p>
+      </div>
+    </div>
+
+
   </div>
 </template>
 
@@ -61,7 +98,15 @@ export default {
         path: '/coursePage',
         query: { course_id: course_id, user_id: this.user_id }
       })
-    }
+    },
+    redirectChatbot() {
+      console.log('Redirecting to Chatbot:')
+      this.$router.push({
+        path: '/Chatbot',
+        
+      })
+    },
+
   }
 }
 </script>
@@ -101,8 +146,8 @@ export default {
   padding: 10px;
   text-align: center;
 }
-.course-card:hover {
-  background-color: #833006;
+.card-body:hover {
+  background-color: rgb(141 74 58 / 18%);
   cursor: pointer;
 }
 </style>

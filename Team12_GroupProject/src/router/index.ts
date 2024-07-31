@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import CoursePage from '@/components/CoursePage.vue'
 import LoginPage from '../components/LoginPage.vue'
 import Dashboard from '../components/Dashboard.vue'
+import Chatbot from '../components/Chatbot.vue'
 
 const routes = [
   {
@@ -25,9 +26,19 @@ const routes = [
     name: 'coursePage',
     component: CoursePage,
     meta: {
-      heading: ''
+      heading: '',
+      pageName: 'coursePage'
     }
-  }
+  },
+  {
+    path: '/Chatbot',
+    name: 'Chatbot',
+    component: Chatbot,
+    meta: {
+      heading: 'Chatbot',
+      
+    }
+  },
 ]
 
 const router = createRouter({
