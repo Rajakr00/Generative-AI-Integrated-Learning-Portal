@@ -99,7 +99,7 @@ export default {
       )
       const data = await response.json()
       if (response.ok) {
-        this.transcript = data['summary']
+        this.summary = data['summary']
         console.log(this.summary)
       } else this.message = data['message']
 
