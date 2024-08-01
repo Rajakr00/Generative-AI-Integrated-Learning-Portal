@@ -51,13 +51,13 @@ export default {
  computed: {
 
     isMobile() {
-    console.log(this.screenWidth);
+    //console.log(this.screenWidth);
       return this.screenWidth < 768;
 
     },
 
   isTitleMatch() {
-      console.log(this.$route.meta.pageName)
+      //console.log(this.$route.meta.pageName)
       return this.$route.meta.pageName === "coursePage";
 
     },

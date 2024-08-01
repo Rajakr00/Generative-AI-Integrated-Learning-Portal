@@ -1,14 +1,26 @@
 <template>
-    <div class="container m-4">
+    <div class="container m-auto p-1">
         <div class="card mx-auto">
             <div class="card-header bg-transparent">
                 <div class="navbar navbar-expand p-0">
                     <h5>Chatbot</h5>
+
+                    <!-- close button -->
+                    <ul class="navbar-nav ms-auto" v-if="chatBotState">
+                        <li class="nav-item">
+                            <a class="btn btn-secondary nav-link text-light" @click="closeBot">
+                                <i class="bx bx-x bx-md"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- header close button-->
+
                 </div>
             </div>
-            <div class="card-body p-4" style="height: 400px; overflow: auto;">
+            <div class="card-body p-2" style="height: 400px; overflow: auto;" ref="messagesContainer">
 
                 <div class="d-flex align-items-baseline mb-4">
+
                     <div class="position-relative avatar">
                         <img src="https://s.yimg.com/ny/api/res/1.2/zWHycYRsBKQ6xwdBGQtw4g--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTU0MDtjZj13ZWJw/https://s.yimg.com/os/creatr-uploaded-images/2023-12/5f7be670-943f-11ee-af7f-41b7060d20ba"
                             class="img-fluid" style="border-radius: 50%; height:100%;" alt="">
@@ -17,9 +29,13 @@
                             <span class="visually-hidden">New alerts</span>
                         </span>
                     </div>
+
                     <div class="pe-2">
                         <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">Hi! How may i assist you today?
+                            <div class="card card-text d-inline-block p-2 px-3 m-1" v-if="chatBotState">here's the summary of this lecture.
+                            </div>
+                            <div class="card card-text d-inline-block p-2 px-3 m-1" v-else>
+                                Hi! How may i assist you today ?
                             </div>
                         </div>
                         
@@ -106,11 +122,12 @@
             
             -->
             <div class="messages-container">
-              <div v-for="(msg, index) in messages" :key="index" :class="{'justify-content-end': msg.sender === 'me', 'justify-content-start': msg.sender !== 'me'}" class="d-flex align-items-baseline mb-4">
-                <div v-if="msg.sender === 'me'" class="d-flex">
+              <div v-for="(msg, index) in messages" :key="index" :class="{'justify-content-end': msg.role === 'user', 'justify-content-start': msg.role !== 'user'}" class="d-flex align-items-baseline mb-4">
+                <div v-if="msg.role === 'user'" class="d-flex">
                 <div class="pe-2">
                   <div>
-                    <div class="card card-text d-inline-block p-2 px-3 m-1" v-html="msg.text"></div>
+                    <div class="card card-text d-inline-block p-2 px-3 m-1" v-if="msg.parts && msg.type === 'text'" v-html="msg.parts.text"></div>
+                    <div class="card card-text d-inline-block p-2 px-3 m-1" v-if="msg.parts && msg.type === 'file'">{{msg.name}}</div>
                   </div>
                 </div>
 
@@ -142,7 +159,7 @@
 
                 <div class="pe-2">
                   <div>
-                    <div class="card card-text d-inline-block p-2 px-3 m-1" v-html="msg.text"></div>
+                    <div class="card card-text d-inline-block p-2 px-3 m-1" v-if="msg.parts.text" v-html="msg.parts.text"></div>
                   </div>
                 </div>
             </div>
@@ -158,13 +175,14 @@
             <div class="card-footer bg-white position-absolute w-100 bottom-0 m-0 p-1">
                 <div class="input-group">
                     <div class="input-group-text bg-transparent border-0">
-                        <button class="btn btn-light text-secondary">
+                        <input ref="fileInput" type="file" style="display: none;" @change="onFileChange">
+                        <button class="btn btn-light text-secondary" @click="triggerFileUpload"> 
                             <i class="bx bx-paperclip bx-sm"></i>
                         </button>
                     </div>
-                    <input type="text" v-model="message" class="form-control border-0" placeholder="Write a message..." @keyup.enter="sendMessage(message,'me')">
+                    <input type="text" v-model="message" class="form-control border-0" placeholder="Write a message..." @keyup.enter="sendMessage(message,'user','text')">
                     <div class="input-group-text bg-transparent border-0" >
-                        <button @click="sendMessage(message,'me')" class="btn btn-light text-secondary">
+                        <button @click="sendMessage(message,'user','text')" class="btn btn-light text-secondary">
                             <i class="bx bx-send bx-sm"></i>
                         </button>
                     </div>
@@ -176,72 +194,185 @@
 
 
 <script>
+import DOMPurify from 'dompurify';
+
 export default {
   name: 'Chatbot',
+  props: {
+    chatBotState: {
+      type: String,
+      required: false,
+      default:null,
+    },
+    clearHistory:{
+        type: Boolean,
+        required:false,
+        default:false,
+    },
+  },
   data() {
     return {
       message:'',
       messages:[],
     }
   },
-  created() {
-    this.getCourses()
+  
+  mounted() {
+    if (this.chatBotState) {
+
+      this.messages.push({ parts : { text : this.chatBotState}, role: 'model', type:'text', name:'' });
+      //console.log(this.messages);
+      
+    }
+  },
+  computed: {
+    filteredMessages() {
+      // Determine the starting index based on chatBotState
+      const startIndex = this.chatBotState ? 1 : 0;
+      return this.messages.slice(startIndex);
+    }
+  },
+
+  watch: {
+
+    messages() {
+      this.$nextTick(() => {
+        this.scrollToBottom();
+      });
+    },
+
+    clearHistory(newValue, oldValue) {
+      // This function is called whenever `selectedVideoUrl` changes
+      this.messages=[];
+      //console.log("messages[]="+this.messages);
+      this.clearHistory=false;
+    },
+    chatBotState(newValue, oldValue) {
+      // This function is called whenever `chatBotState` changes
+      this.messages.push({ parts : { text : this.chatBotState}, role: 'model', type:'text', name:'' });
+        //console.log("chatBotState changed messages[]="+this.messages);
+      
+    },
   },
   methods: {
 
+    scrollToBottom() {
+      
+      const container = this.$refs.messagesContainer;
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth'
+      });
 
-    async sendMessage(text, sender) {
+    },
+
+    async onFileChange(event) {
+      const file = event.target.files[0];
+      if (file && file.type === 'application/pdf') {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const response = await fetch('http://127.0.0.1:5000/api/PDFtoText', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          const data = await response.json();
+          this.sendMessage(data.text,'user','file',file.name);
+
+
+        } catch (error) {
+          console.log('There was a problem with the fetch operation:', error);
+          this.sendMessage('Sorry! upload failed, try again.','model','text');
+        }
+      } else {
+        alert('Please select a PDF file.');
+      }
+    },
+
+    triggerFileUpload() {
+      //console.log("file upload triggered")
+      this.$refs.fileInput.click();
+    },
+
+    stripHtmlTagsWithDompurify(htmlString) {
+          const cleanHtml = DOMPurify.sanitize(htmlString, { ALLOWED_TAGS: [] });
+          return cleanHtml;
+        },
+
+
+    async sendMessage(text, role, type, name) {
       if (text.trim()) {
 
-        this.messages.push({ text: text, sender: sender });  // add the message with sender information to the array
+        this.messages.push({ parts : { text : text }, role: role, type: type, name: name });  // add the message with sender information to the array
         this.message = '';  // clear the input field after sending the message
 
-        const response = await fetch(
-        `http://127.0.0.1:5000/api/Chat?query=${text}`,
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
+
+        const jsonBody = this.prepareJsonBody(this.messages);
+        console.log(JSON.stringify(jsonBody));
+
+        try{
+
+            const response = await fetch(
+        `http://127.0.0.1:5000/api/Chat`,
         {
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          body: JSON.stringify(jsonBody),
         }
       )
       const data = await response.json()
       if (response.ok) {
         this.receiveMessage(data['message']);
       }
+      else{
+        this.receiveMessage(data['message']);
+      }
+
+        }
+        catch(error){
+            this.receiveMessage("Network Error! Please check your internet connection and try again."+error);
+        
+        }
 
       }
+    },
+
+    prepareJsonBody(messages) {
+      // Map the messages array to the required JSON structure
+      return messages.filter(msg => msg.parts && msg.parts.text).map(msg => ({
+        parts: { text: msg.parts.text },
+        role: msg.role,
+      }));
     },
 
     receiveMessage(text) {
       if (text.trim()) {
-        this.messages.push({ text: text, sender: 'other' });  // add the message from the other user to the array
+        this.messages.push({ parts : { text: text }, role: 'model', type:'text', name:''});  // add the message from the other user to the array
+        //console.log(this.messages);
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
       }
     },
 
-    async getCourses() {
-      const response = await fetch(
-        `http://127.0.0.1:5000/api/studentDashboard?user_id=${this.user_id}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      )
-      const data = await response.json()
-      if (response.ok) {
-        this.courses = data['courses']
-        this.no_of_courses = data['no_of_courses']
-      }
+    closeBot(){
+        this.$emit('closeChatBot');
     },
-    redirectCoursePage(course_id) {
-      console.log('Redirecting to course ID:', course_id)
-      this.$router.push({
-        path: '/coursePage',
-        query: { course_id: course_id, user_id: this.user_id }
-      })
-    }
+
+    
+    
+    
   }
 }
 </script>

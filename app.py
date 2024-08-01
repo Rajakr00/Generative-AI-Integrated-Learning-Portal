@@ -6,6 +6,8 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from pytube import extract
 import requests
 import markdown
+import fitz
+import re
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -63,6 +65,43 @@ class Link(db.Model):
 
 #-----------API Controllers-----------
 
+class PDFtoText(Resource):
+    @staticmethod
+    def clean_text(text):
+        # Remove all non-ASCII characters
+        text = re.sub(r'[^\x00-\x7F]+', '', text)
+        # Remove all HTML tags
+        text = re.sub(r'<.*?>', '', text)
+        # Replace multiple spaces or newlines with a single space
+        text = re.sub(r'\s+', ' ', text).strip()
+        #print("clean_text called"+text)
+        return text
+
+    def post(self):
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
+
+        file = request.files['file']
+
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+
+        if file:
+            try:
+                pdf_document = fitz.open(stream=file.read(), filetype="pdf")
+                text = ""
+                for page_num in range(len(pdf_document)):
+                    page = pdf_document.load_page(page_num)
+                    text += page.get_text()
+
+                    print(self.clean_text(text))
+                return jsonify({'text': self.clean_text(text)})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
+        return jsonify({'error': 'File upload failed'}), 500
+
+
 class YTSummary(Resource):
     def get(self):
         url = request.args.get('video_url')
@@ -72,6 +111,7 @@ class YTSummary(Resource):
         for i in srt:
             subtitles.append(i['text'])
         full_srt = "\n".join(subtitles)
+
         if full_srt:
 
             api_key = "AIzaSyByHZtQ1cLVH8lGVuJzeIZAuSaMuIsqffg"
@@ -83,19 +123,25 @@ class YTSummary(Resource):
             data = { "contents":[ {"role": "user","parts":[{"text": full_srt}]} ]}
 
             response = requests.post(url, headers=headers, json=data)
-            message = response.json()['candidates'][0]['content']['parts'][0]['text']
+            #print(response.status_code,response.text)
+            if response.status_code == 200:
+                message = response.json()['candidates'][0]['content']['parts'][0]['text']
 
-            html = markdown.markdown(message)
-
-            return { 'summary':html }, 200 
+                #html = markdown.markdown(message)
+                return { 'summary': message }, 200 
+            else:
+                return { 'summary': response.text }, 500
         else:
             return { 'message':'failed to fetch transcript'}, 401
+        
 
 
 class Chat(Resource):
-    def get(self):
-        query = request.args.get('query')
-        if query:
+    def post(self):
+        #query = request.args.get('query')
+        chat_history=request.get_json()
+        #print(chat_history)
+        if chat_history:
 
             api_key = "AIzaSyByHZtQ1cLVH8lGVuJzeIZAuSaMuIsqffg"
             url = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key="+api_key
@@ -103,12 +149,17 @@ class Chat(Resource):
             headers = {
                 'Content-Type': 'application/json',
             }
-            data = { "contents":[ {"role": "user","parts":[{"text": query}]} ]}
+            #data = { "contents":[ {"role": "user","parts":[{"text": query}]} ]}
+            data = { "contents":chat_history}
 
             response = requests.post(url, headers=headers, json=data)
-            message = response.json()['candidates'][0]['content']['parts'][0]['text']
+            if response.status_code == 200:
 
-            html = markdown.markdown(message)
+                message = response.json()['candidates'][0]['content']['parts'][0]['text']
+
+                html = markdown.markdown(message)
+            else:
+                return { 'message':response.json()['error']['message']}, 500
 
             return { 'message':html }, 200 
         else:
@@ -159,7 +210,7 @@ class RegisteredCourses(Resource):
                         'desc':course_description
                     })
                     response['no_of_courses']=response['no_of_courses']+1
-                print(response)
+                #print(response)
                 return response, 200
             else:
                 return {'message':'No registered courses'} , 201
@@ -230,6 +281,7 @@ api.add_resource(RegisteredCourses,'/api/studentDashboard')
 api.add_resource(CourseDetails, '/api/coursePage')
 api.add_resource(YTSummary, '/api/YTSummary')
 api.add_resource(Chat, '/api/Chat')
+api.add_resource(PDFtoText,'/api/PDFtoText')
 
 @app.route("/")
 def hello_world():

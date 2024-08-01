@@ -93,14 +93,14 @@ export default {
       }
     },
     redirectCoursePage(course_id) {
-      console.log('Redirecting to course ID:', course_id)
+      //console.log('Redirecting to course ID:', course_id)
       this.$router.push({
         path: '/coursePage',
         query: { course_id: course_id, user_id: this.user_id }
       })
     },
     redirectChatbot() {
-      console.log('Redirecting to Chatbot:')
+      //console.log('Redirecting to Chatbot:')
       this.$router.push({
         path: '/Chatbot',
         

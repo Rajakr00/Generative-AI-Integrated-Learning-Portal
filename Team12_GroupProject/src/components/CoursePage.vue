@@ -5,11 +5,14 @@
 
 
   <div class="row m-1" v-if="checkSummary">
-    <div class="col-sm-7 p-0">
+    <div class="col-md-7 p-0">
       <VideoPlayer :videoUrl="selectedVideoUrl" />
     </div>
-    <div class="col p-1">
+    <div class="col md-5 p-1">
+
+    <Chatbot :chatBotState="summary" :clearHistory="clearHistory" @closeChatBot="closeChatBot"/>
   
+<!--
       <div class="card vh-100 m-2">
       <div class="card-header d-flex row">
         <div class="d-flex justify-content-between col align-self-center">
@@ -25,10 +28,12 @@
       </div>
       <div class="card-body overflow-scroll" v-html="summary">
       </div>
-      </div>
-    </div>
-  </div>
 
+      </div>
+-->    
+    </div>
+
+  </div>
   <div class="row m-1" v-else>
     <div class="row">
       <VideoPlayer :videoUrl="selectedVideoUrl" />
@@ -48,11 +53,15 @@
 <script>
 import SidebarMenu from './SidebarMenu.vue'
 import VideoPlayer from './VideoPlayer.vue'
+import Chatbot from './Chatbot.vue'
+import { marked } from 'marked'
+
 export default {
   name: 'CoursePage',
   components: {
     SidebarMenu,
-    VideoPlayer
+    VideoPlayer,
+    Chatbot
   },
   created() {
     this.getCoursesDetails()
@@ -67,6 +76,8 @@ export default {
       weeks_no: [],
       selectedVideoUrl: '',
       summary:'',
+      clearHistory:false,
+      
     }
   },
   mounted() {
@@ -74,11 +85,24 @@ export default {
   },
   computed:{
   checkSummary(){
-    console.log(this.summary);
+    //console.log(this.summary);
     return this.summary;
   },
   },
+  watch: {
+    selectedVideoUrl(newValue, oldValue) {
+      // This function is called whenever `selectedVideoUrl` changes
+      this.getSummary();
+      this.clearHistory=true;
+      //console.log("selectedVideoUrl:"+this.selectedVideoUrl+this.clearHistory);
+    }
+  },
   methods: {
+
+
+    closeChatBot(){
+      this.closeSummary();
+    },
 
     closeSummary(){
 
@@ -99,8 +123,8 @@ export default {
       )
       const data = await response.json()
       if (response.ok) {
-        this.summary = data['summary']
-        console.log(this.summary)
+        this.summary = "<h4> Summary</h4><br>" + marked(data['summary'])
+        //console.log("SUMMARY : "+this.summary)
       } else this.message = data['message']
 
     },
@@ -123,7 +147,7 @@ export default {
           week: `Week ${weekNumber}`,
           urls
         }))
-        console.log(this.weeks_no)
+        //console.log(this.weeks_no)
         this.setInitialVideo()
       } else this.message = data['message']
     },

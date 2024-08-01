@@ -97,10 +97,10 @@ export default {
         if(!form.checkValidity()){
 
               form.classList.add('is-invalid')
-              console.log("is-invalid")
+              //console.log("is-invalid")
         }
             else{   
-              console.log("is-valid")
+              //console.log("is-valid")
               form.classList.remove('is-invalid')
               form.classList.add('is-valid')
             }       
@@ -132,12 +132,12 @@ export default {
       if (response.ok) {
         const user_id = data['user_id']
         this.$store.commit('setCurrentUser', { id: data['user_id'], name: data['user_name']})
-        console.log(this.$store.state.current_user.id)
+        //console.log(this.$store.state.current_user.id)
         this.$router.push({ path: '/studentDashboard', query: { user_id } })
       } else {
 
         this.message = data['message']
-        console.log(this.message)
+        //console.log(this.message)
 
         var form = document.getElementById('login_form')
         var elems = form.getElementsByTagName("input")
