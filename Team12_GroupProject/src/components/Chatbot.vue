@@ -42,92 +42,16 @@
                     </div>
                 </div>
 
-
-                <!--
-                <div class="d-flex align-items-baseline text-end justify-content-end mb-4">
-                    <div class="pe-2">
-                        <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">Sure</div>
-                        </div>
-                        <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">Let me know when you're available?
-                            </div>
-                        </div>
-                        <div>
-                            <div class="small">01:13PM</div>
-                        </div>
-                    </div>
-                    <div class="position-relative avatar">
-                        <img src="https://nextbootstrap.netlify.app/assets/images/profiles/2.jpg"
-                            class="img-fluid rounded-circle" alt="">
-                        <span
-                            class="position-absolute bottom-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle">
-                            <span class="visually-hidden">New alerts</span>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-baseline mb-4">
-                    <div class="position-relative avatar">
-                        <img src="https://nextbootstrap.netlify.app/assets/images/profiles/1.jpg"
-                            class="img-fluid rounded-circle" alt="">
-                        <span
-                            class="position-absolute bottom-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle">
-                            <span class="visually-hidden">New alerts</span>
-                        </span>
-                    </div>
-                    <div class="pe-2">
-                        <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">3:00pm??</div>
-                        </div>
-                        <div>
-                            <div class="small">Edited - 01:13PM</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-baseline text-end justify-content-end mb-4">
-                    <div class="pe-2">
-                        <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">Cool</div>
-                        </div>
-                        <div>
-                            <div class="card card-text p-2 px-3 m-1 mb-5">
-                                <div class="row align-items-center">
-                                    <div class="col-1">
-                                        <a href=""><i class="fas fa-play"></i></a>
-                                    </div>
-                                    <div class="col">
-                                        <div class="progress" style="width:100px; height: 4px;">
-                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 35%"
-                                                aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <div class="small fw-bold">0:34</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="position-relative avatar">
-                        <img src="https://nextbootstrap.netlify.app/assets/images/profiles/2.jpg"
-                            class="img-fluid rounded-circle" alt="">
-                        <span
-                            class="position-absolute bottom-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle">
-                            <span class="visually-hidden">New alerts</span>
-                        </span>
-                    </div>
-                </div>
-            
-            -->
             <div class="messages-container">
               <div v-for="(msg, index) in messages" :key="index" :class="{'justify-content-end': msg.role === 'user', 'justify-content-start': msg.role !== 'user'}" class="d-flex align-items-baseline mb-4">
-                <div v-if="msg.role === 'user'" class="d-flex">
+                <div v-if="msg.role === 'user' && msg.type !== 'summary'"  class="d-flex">
                 <div class="pe-2">
                   <div>
                     <div class="card card-text d-inline-block p-2 px-3 m-1" v-if="msg.parts && msg.type === 'text'" v-html="msg.parts.text"></div>
-                    <div class="card card-text d-inline-block p-2 px-3 m-1" v-if="msg.parts && msg.type === 'file'">{{msg.name}}</div>
+                    <span v-if="msg.parts && msg.type === 'file'" class="text-end">
+                        <i class='bx bx-file bx-lg'></i>
+                    </span><br>
+                    <span class="card card-text d-inline-block p-2 px-3 m-1" v-if="msg.parts && msg.type === 'file'">{{msg.name}}</span>
                   </div>
                 </div>
 
@@ -144,7 +68,7 @@
                 </div>
             
                 <div v-else class="d-flex">
-
+                   <div v-if="msg.type!='file' && msg.type!='summary'"> 
                     <div>
                     <div class="position-relative avatar">
                         <img src="https://s.yimg.com/ny/api/res/1.2/zWHycYRsBKQ6xwdBGQtw4g--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTU0MDtjZj13ZWJw/https://s.yimg.com/os/creatr-uploaded-images/2023-12/5f7be670-943f-11ee-af7f-41b7060d20ba"
@@ -162,7 +86,10 @@
                     <div class="card card-text d-inline-block p-2 px-3 m-1" v-if="msg.parts.text" v-html="msg.parts.text"></div>
                   </div>
                 </div>
+            </div> 
             </div>
+
+
             </div>
           </div>
             </div>
@@ -194,7 +121,23 @@
 
 
 <script>
+
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import DOMPurify from 'dompurify';
+import { marked } from 'marked';
+
+// Fetch your API_KEY
+const API_KEY = "AIzaSyByHZtQ1cLVH8lGVuJzeIZAuSaMuIsqffg";
+// Reminder: This should only be for local testing
+
+// Access your API key (see "Set up your API key" above)
+const genAI = new GoogleGenerativeAI(API_KEY);
+
+// ...
+
+// The Gemini 1.5 models are versatile and work with most use cases
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+
 
 export default {
   name: 'Chatbot',
@@ -214,16 +157,26 @@ export default {
     return {
       message:'',
       messages:[],
+      //for streaming chat
+      loading: true,
+      //formattedMessage: '',
+      tempChunk: '',
     }
   },
   
   mounted() {
     if (this.chatBotState) {
 
-      this.messages.push({ parts : { text : this.chatBotState}, role: 'model', type:'text', name:'' });
-      //console.log(this.messages);
-      
+      //this.messages.push({ parts : { text : this.chatBotState}, role: 'model', type:'text', name:'' } );
+
+      this.sendMessage(this.chatBotState,'user','summary');
+
+      console.log(this.messages);
+
+      //const { GoogleGenerativeAI } = await import('@google/generative-ai');
+      //console.log(GoogleGenerativeAI);
     }
+  
   },
   computed: {
     filteredMessages() {
@@ -249,12 +202,52 @@ export default {
     },
     chatBotState(newValue, oldValue) {
       // This function is called whenever `chatBotState` changes
-      this.messages.push({ parts : { text : this.chatBotState}, role: 'model', type:'text', name:'' });
+      
         //console.log("chatBotState changed messages[]="+this.messages);
+      this.sendMessage(this.chatBotState,'user','summary');
       
     },
   },
   methods: {
+
+    //for processing streaming
+    appendDataChunk(dataChunk) {
+          this.tempChunk += dataChunk;
+          this.processTempChunk();
+    },
+    // for processing streaming
+    processTempChunk(flag) {
+      // Check for end markers to decide if chunk is complete
+      const chunkEndPattern = /\n{2,}/; // Two or more newlines
+      if (chunkEndPattern.test(this.tempChunk)) {
+        const splitChunks = this.tempChunk.split(chunkEndPattern);
+        const completeChunks = splitChunks.slice(0, -1);
+        this.tempChunk = splitChunks.slice(-1)[0]; // Keep the remaining incomplete chunk
+
+        completeChunks.forEach(chunk => {
+          
+          this.messages[this.messages.length - 1].parts.text += marked(chunk);
+          this.$nextTick(() => {
+          this.scrollToBottom();
+        });
+          
+        });
+      }
+
+      if (flag) {
+
+        this.messages[this.messages.length - 1].parts.text += marked(this.tempChunk);
+        this.tempChunk = ''; // Clear tempChunk after appending
+
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
+
+                
+      
+    }
+
+  },
 
     scrollToBottom() {
       
@@ -310,56 +303,55 @@ export default {
       if (text.trim()) {
 
         this.messages.push({ parts : { text : text }, role: role, type: type, name: name });  // add the message with sender information to the array
-        this.message = '';  // clear the input field after sending the message
+        this.message = '';  // clear the input field after sending the message        
 
         this.$nextTick(() => {
           this.scrollToBottom();
         });
 
         const jsonBody = this.prepareJsonBody(this.messages);
-        console.log(JSON.stringify(jsonBody));
+        //console.log(JSON.stringify(jsonBody));
+        const body = {'contents' : jsonBody, 'stream':true};
+        //console.log(body);
 
-        try{
+        //const prompt = "Write a story about a magic backpack."
 
-            const response = await fetch(
-        `http://127.0.0.1:5000/api/Chat`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(jsonBody),
-        }
-      )
-      const data = await response.json()
-      if (response.ok) {
-        this.receiveMessage(data['message']);
-      }
-      else{
-        this.receiveMessage(data['message']);
-      }
+        const chat = await model.startChat({history:jsonBody});
 
-        }
-        catch(error){
-            this.receiveMessage("Network Error! Please check your internet connection and try again."+error);
+
+        const result = await chat.sendMessageStream(text);
+
+        //console.dir(result);
+
+        let received = '';
+        this.messages.push({ parts : { text: "" }, role: 'model', type:'text'});
+        for await (const chunk of result.stream) {
+
+          this.appendDataChunk(chunk.text());
+          const chunkText = chunk.text();
+          //console.log(chunkText);
+          received += chunkText;
         
+
         }
+        this.processTempChunk(true);
+
 
       }
-    },
+    }, 
 
     prepareJsonBody(messages) {
       // Map the messages array to the required JSON structure
       return messages.filter(msg => msg.parts && msg.parts.text).map(msg => ({
-        parts: { text: msg.parts.text },
+        parts: [{ text: msg.parts.text} ],
         role: msg.role,
       }));
     },
 
-    receiveMessage(text) {
+    receiveMessage(text,role,type,name) {
       if (text.trim()) {
-        this.messages.push({ parts : { text: text }, role: 'model', type:'text', name:''});  // add the message from the other user to the array
-        //console.log(this.messages);
+        this.messages.push({ parts : { text: text }, role: 'model', type:type, name:''});  // add the message from the other user to the array
+        console.log(this.messages);
         this.$nextTick(() => {
           this.scrollToBottom();
         });

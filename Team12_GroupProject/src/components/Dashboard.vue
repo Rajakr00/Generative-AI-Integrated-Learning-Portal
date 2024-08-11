@@ -32,7 +32,7 @@
 
     <h3 class="text-start m-2">AI helper</h3>
     <div class="card text-dark m-3" style="max-width: 18rem;"
-      @click="redirectCoursePage(course.id)"
+      @click="redirectChatbot"
     >
       <div class="card-header">Pdf Summarization</div>
       <div class="card-body">
@@ -41,7 +41,7 @@
     </div>
 
     <div class="card text-dark m-3" style="max-width: 18rem;"
-      @click="redirectCoursePage(course.id)"
+      @click="redirectCoursePage(1)"
     >
       <div class="card-header">Lecture Summary</div>
       <div class="card-body">

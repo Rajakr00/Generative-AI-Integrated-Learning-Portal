@@ -123,7 +123,7 @@ export default {
       )
       const data = await response.json()
       if (response.ok) {
-        this.summary = "<h4> Summary</h4><br>" + marked(data['summary'])
+        this.summary = "explain this lecture " +data['summary']
         //console.log("SUMMARY : "+this.summary)
       } else this.message = data['message']
 

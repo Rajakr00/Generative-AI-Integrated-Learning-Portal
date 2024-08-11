@@ -113,6 +113,13 @@ class YTSummary(Resource):
         full_srt = "\n".join(subtitles)
 
         if full_srt:
+            return { 'summary' : full_srt }, 200
+        else:
+            return {'message' : 'failed to fetch transcript'},401
+
+        '''
+
+        if full_srt:
 
             api_key = "AIzaSyByHZtQ1cLVH8lGVuJzeIZAuSaMuIsqffg"
             url = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key="+api_key
@@ -133,6 +140,9 @@ class YTSummary(Resource):
                 return { 'summary': response.text }, 500
         else:
             return { 'message':'failed to fetch transcript'}, 401
+        '''
+
+
         
 
 
