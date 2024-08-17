@@ -43,7 +43,9 @@
     <div class="col"></div>
     </div>
   </div>
-
+  <!-- <div class="chatbotContainer">
+        <img src="../assets/robot.png" class="chatbotIcon" v-on:click="redirectChatbot" />
+  </div> -->
 
 </template>
 
@@ -117,7 +119,8 @@ export default {
       const data = await response.json()
       if (response.ok) {
         this.summary = "explain this lecture " +data['summary']
-        //console.log("SUMMARY : "+this.summary)
+        // console.log("SUMMARY : "+this.summary)
+        this.isSummaryBtnClicked=true;
       } else this.message = data['message']
       console.log('in get summary(0)')
     },
@@ -160,12 +163,41 @@ export default {
       navigator.clipboard.writeText(this.selectedVideoUrl).then(() => {
         alert('Link copied to clipboard')
       })
-    }
+    },
+    // redirectChatbot() {
+    //   //console.log('Redirecting to Chatbot:')
+    //   this.$router.push({
+    //     path: '/Chatbot',
+        
+    //   })
+    // }
   }
 }
 </script>
 
 <style scoped>
+/* .chatbotIcon{
+  height: 70px;
+  padding: 10px;
+}
+.chatbotContainer{
+  height: fit-content;
+  width: fit-content;
+  border-radius: 11cm;
+  background-color: #8d493a;
+  float:right;
+  position: absolute; 
+  top: 85%;
+  right: 10%; 
+  z-index: 1000; 
+}
+.chatbotIcon:hover{
+  cursor: pointer;
+}
+.chatbotContainer:hover{
+  opacity: 95%;
+  border: 2px solid #d0b8a8;
+} */
 .body {
   padding-left: 200px;
 }

@@ -3,8 +3,6 @@ import PyPDF2
 import re
 import openai
 
-
-
 # Set the string that will contain the summary     
 pdf_summary_text = ""
 # Open the PDF file

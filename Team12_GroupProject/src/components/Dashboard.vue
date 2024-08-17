@@ -20,8 +20,6 @@
       </div>
       
     </div>
-    
-
     <!-- <h3 class="text-start m-2">AI helper</h3> -->
     <!-- <div class="card text-dark m-3" style="max-width: 18rem;"
       @click="redirectChatbot"
@@ -49,6 +47,12 @@
         <p class="card-text">Ask any doubt</p>
       </div>
     </div> -->
+  </div>
+  <div class="">
+    <span class="chatbotContainer">
+      <img src="../assets/robot.png" class="chatbotIcon" v-on:click="redirectChatbot" />
+    </span>
+    <p class="chatbotCaption">Your Virtual Assistant</p>
   </div>
 </template>
 
@@ -162,8 +166,13 @@ export default {
   color: black
 }
 .chatbotIcon{
-  height: 100px;
+  height: 70px;
   padding: 10px;
+}
+.chatbotCaption{
+  float:right;
+  position: absolute; 
+  top: 80%;
 }
 .chatbotContainer{
   height: fit-content;
@@ -171,6 +180,10 @@ export default {
   border-radius: 11cm;
   background-color: #8d493a;
   float:right;
+  position: absolute; 
+  top: 80%;
+  right: 10%; 
+  /* z-index: 1000;  */
 }
 .chatbotIcon:hover{
   cursor: pointer;
@@ -178,5 +191,13 @@ export default {
 .chatbotContainer:hover{
   opacity: 95%;
   border: 2px solid #d0b8a8;
+}
+.chatbotCaption{
+  float:right;
+  position: absolute; 
+  top: 83.5%;
+  left:74%;
+  color:#69352a;
+  font-weight: bold;
 }
 </style>
