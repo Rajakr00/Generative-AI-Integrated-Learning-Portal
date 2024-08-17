@@ -3,62 +3,52 @@
     <div v-if="no_of_courses == 0" style="text-align: center">
       You haven't registered for any courses!
     </div>
-    <h3 class="text-start m-2">My Current Courses</h3>
+    <h3 class="text-start m-2">
+      <b> MY CURRENT COURSES </b>
+    </h3>
     <div
       v-for="course in courses"
       :key="course.id"
-      class="card text-dark m-3" style="max-width: 18rem;"
+      class="card text-dark m-3" style="max-width: 22rem; color: #dfd3c3; padding-inline: 15px; padding-block: 15px; "
       @click="redirectCoursePage(course.id)"
     >
-      
-      <!--
-      <table class="course-details">
-        <tr>
-          <th class="course-name">{{ course.name }}</th>
-        </tr>
-        <tr>
-          <br />
-        </tr>
-        <tr>
-          <td class="course-desc">{{ course.desc }}</td>
-        </tr>
-      </table>
-      -->
-      <div class="card-header">{{ course.name }}</div>
-      <div class="card-body">
+      <div class="card-header">
+        <b>{{ course.name.toUpperCase() }}</b>
+      </div>
+      <div class="card-body" >
         <p class="card-text">{{ course.desc }}</p>
       </div>
+      
     </div>
+    
 
-    <h3 class="text-start m-2">AI helper</h3>
-    <div class="card text-dark m-3" style="max-width: 18rem;"
+    <!-- <h3 class="text-start m-2">AI helper</h3> -->
+    <!-- <div class="card text-dark m-3" style="max-width: 18rem;"
       @click="redirectChatbot"
     >
       <div class="card-header">Pdf Summarization</div>
       <div class="card-body">
         <p class="card-text">Get summary of pdf files</p>
       </div>
-    </div>
+    </div> -->
 
-    <div class="card text-dark m-3" style="max-width: 18rem;"
+    <!-- <div class="card text-dark m-3" style="max-width: 18rem;"
       @click="redirectCoursePage(1)"
     >
       <div class="card-header">Lecture Summary</div>
       <div class="card-body">
         <p class="card-text">Get key concepts and summary of video lectures</p>
       </div>
-    </div>
+    </div> -->
 
-    <div class="card text-dark m-3" style="max-width: 18rem;"
+    <!-- <div class="card text-dark m-3" style="max-width: 18rem;"
       @click="redirectChatbot"
     >
       <div class="card-header">Chatbot</div>
       <div class="card-body">
         <p class="card-text">Ask any doubt</p>
       </div>
-    </div>
-
-
+    </div> -->
   </div>
 </template>
 
@@ -112,6 +102,21 @@ export default {
 </script>
 
 <style scoped>
+.card-header {
+  background-color: #69352a;
+  color:white;
+  margin: 10px;
+  font-size: larger;
+}
+.card-body{
+  background-color: #8d493a;
+  margin: 10px;
+  color:whitesmoke
+}
+.card-text{
+  font-weight: bold;
+  font-size: large;
+}
 .course-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(200px, 1fr));
@@ -146,8 +151,32 @@ export default {
   padding: 10px;
   text-align: center;
 }
-.card-body:hover {
-  background-color: rgb(141 74 58 / 18%);
+.card-header:hover{
   cursor: pointer;
+  background-color: #d0b8a8;
+  color: black
+}
+.card-body:hover {
+  background-color: #d0b8a8;
+  cursor: pointer;
+  color: black
+}
+.chatbotIcon{
+  height: 100px;
+  padding: 10px;
+}
+.chatbotContainer{
+  height: fit-content;
+  width: fit-content;
+  border-radius: 11cm;
+  background-color: #8d493a;
+  float:right;
+}
+.chatbotIcon:hover{
+  cursor: pointer;
+}
+.chatbotContainer:hover{
+  opacity: 95%;
+  border: 2px solid #d0b8a8;
 }
 </style>

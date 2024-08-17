@@ -1,16 +1,14 @@
-<template>
-
-  
+<template>  
   <SidebarMenu :name="course_name" :weeks="weeks_no" @selectTopic="selectTopic" /> 
-
-
+  <!-- When the summary chatbot is open -->
   <div class="row m-1" v-if="checkSummary">
     <div class="col-md-7 p-0">
       <VideoPlayer :videoUrl="selectedVideoUrl" />
     </div>
-    <div class="col md-5 p-1">
-
-    <Chatbot :chatBotState="summary" :clearHistory="clearHistory" @closeChatBot="closeChatBot"/>
+    <div v-if="isSummaryBtnClicked" class="col md-5 p-1">
+      <Chatbot :chatBotState="summary" :clearHistory="clearHistory" @closeChatBot="closeChatBot" />
+    </div>
+  </div>
   
 <!--
       <div class="card vh-100 m-2">
@@ -31,17 +29,16 @@
 
       </div>
 -->    
-    </div>
-
-  </div>
+  
+  <!-- When the summary chatbot is not open -->
   <div class="row m-1" v-else>
-    <div class="row">
+    <div class="row" style="margin-top: 20px;">
       <VideoPlayer :videoUrl="selectedVideoUrl" />
     </div>
     <div class="row">
     <div class="col"></div>
     <div class="col d-flex justify-content-center">
-    <button class="btn btn-primary" @click="getSummary">Get Summary</button>
+      <button class="btn btn-primary" style="background-color: #8d493a; border:none; font-weight: bold; font-size: large; margin:30px" @click="getSummary">Get Summary</button>
     </div>
     <div class="col"></div>
     </div>
@@ -76,6 +73,7 @@ export default {
       weeks_no: [],
       selectedVideoUrl: '',
       summary:'',
+      isSummaryBtnClicked:false,
       clearHistory:false,
       
     }
@@ -92,25 +90,20 @@ export default {
   watch: {
     selectedVideoUrl(newValue, oldValue) {
       // This function is called whenever `selectedVideoUrl` changes
-      this.getSummary();
+      // this.getSummary();
       this.clearHistory=true;
+      this.isSummaryBtnClicked=true;
       //console.log("selectedVideoUrl:"+this.selectedVideoUrl+this.clearHistory);
     }
   },
   methods: {
-
-
     closeChatBot(){
       this.closeSummary();
+      this.isSummaryBtnClicked=false;
     },
-
     closeSummary(){
-
-    this.summary='';
-
+      this.summary='';  
     },
-
-
     async getSummary(){
       const response = await fetch(
         `http://127.0.0.1:5000//api/YTSummary?video_url=${this.selectedVideoUrl}`,
@@ -126,9 +119,8 @@ export default {
         this.summary = "explain this lecture " +data['summary']
         //console.log("SUMMARY : "+this.summary)
       } else this.message = data['message']
-
+      console.log('in get summary(0)')
     },
-
     async getCoursesDetails() {
       const response = await fetch(
         `http://127.0.0.1:5000//api/coursePage?user_id=${this.user_id}&course_id=${this.course_id}`,
@@ -156,7 +148,6 @@ export default {
         this.selectedVideoUrl = this.convertToEmbedUrl(this.weeks_no[0].urls[0])
       }
     },
-
     selectTopic(url) {
       this.selectedVideoUrl = this.convertToEmbedUrl(url)
     },

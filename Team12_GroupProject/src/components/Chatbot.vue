@@ -4,12 +4,18 @@
             <div class="card-header bg-transparent">
                 <div class="navbar navbar-expand p-0">
                     <h5>Chatbot</h5>
-
                     <!-- close button -->
                     <ul class="navbar-nav ms-auto" v-if="chatBotState">
                         <li class="nav-item">
                             <a class="btn btn-secondary nav-link text-light" @click="closeBot">
                                 <i class="bx bx-x bx-md"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto" v-else>
+                        <li class="nav-item">
+                            <a class="btn btn-secondary nav-link text-light" @click="$router.go(-1)">
+                                Back
                             </a>
                         </li>
                     </ul>
@@ -32,7 +38,7 @@
 
                     <div class="pe-2">
                         <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1" v-if="chatBotState">here's the summary of this lecture.
+                            <div class="card card-text d-inline-block p-2 px-3 m-1" v-if="chatBotState">Hi! Here's the summary of this lecture.
                             </div>
                             <div class="card card-text d-inline-block p-2 px-3 m-1" v-else>
                                 Hi! How may i assist you today ?
@@ -132,10 +138,6 @@ const API_KEY = "AIzaSyByHZtQ1cLVH8lGVuJzeIZAuSaMuIsqffg";
 
 // Access your API key (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(API_KEY);
-
-// ...
-
-// The Gemini 1.5 models are versatile and work with most use cases
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 
 

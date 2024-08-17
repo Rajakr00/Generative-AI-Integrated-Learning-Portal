@@ -142,10 +142,6 @@ class YTSummary(Resource):
             return { 'message':'failed to fetch transcript'}, 401
         '''
 
-
-        
-
-
 class Chat(Resource):
     def post(self):
         #query = request.args.get('query')
