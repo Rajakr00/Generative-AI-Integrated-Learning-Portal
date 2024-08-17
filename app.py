@@ -79,12 +79,15 @@ class PDFtoText(Resource):
 
     def post(self):
         if 'file' not in request.files:
-            return jsonify({'error': 'No file part'}), 400
+            return {'error': 'No file uploaded'}, 400
 
         file = request.files['file']
 
-        if file.filename == '':
-            return jsonify({'error': 'No file selected'}), 400
+
+        file_ext = file.filename.split('.')[1]
+
+        if file_ext != 'pdf':
+            return {'error': 'Incorrect File Type'}, 400
 
         if file:
             try:
@@ -99,7 +102,7 @@ class PDFtoText(Resource):
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
-        return jsonify({'error': 'File upload failed'}), 500
+        return {'error': 'File upload failed'}, 400
 
 
 class YTSummary(Resource):
@@ -160,8 +163,8 @@ class Chat(Resource):
                 'Content-Type': 'application/json',
             }
             #data = { "contents":[ {"role": "user","parts":[{"text": query}]} ]}
-            data = { "contents":chat_history}
-
+            data = { "contents":chat_history['query']}
+            print(data)
             response = requests.post(url, headers=headers, json=data)
             if response.status_code == 200:
 
@@ -205,6 +208,10 @@ class RegisteredCourses(Resource):
     
     def get(self):
         user_id = request.args.get('user_id')
+
+        if user_id == '':
+            return {'message':'UserId Required'} , 401
+        
         user=User.query.filter_by(user_id=int(user_id)).first()
         if user:
             enrolled_courses=Enrollment.query.filter_by(user_id=user_id).all()
@@ -230,6 +237,10 @@ class RegisteredCourses(Resource):
 class StudentDashboard(Resource):
     def get(self):
         user_id = request.args.get('user_id')
+
+        if user_id == '':
+            return {'message':'UserId Required'} , 401
+        
         if user_id:
             user = User.query.filter_by(user_id=user_id).all()
             if user:
@@ -256,6 +267,11 @@ class CourseDetails(Resource):
         course_id=request.args.get('course_id')
         if user_id or course_id:
             user = User.query.filter_by(user_id=user_id).all()
+            course = Course.query.filter_by(course_id=course_id).first()
+
+            if not course:
+                return ({"message": "Course not available"}), 401
+
             if user:
                 enrolled = Enrollment.query.filter_by(user_id=user_id).filter_by(course_id=course_id).first()
                 if enrolled:
@@ -290,7 +306,7 @@ api.add_resource(StudentLogin,'/api/studentLogin')
 api.add_resource(RegisteredCourses,'/api/studentDashboard') 
 api.add_resource(CourseDetails, '/api/coursePage')
 api.add_resource(YTSummary, '/api/YTSummary')
-api.add_resource(Chat, '/api/Chat')
+#api.add_resource(Chat, '/api/Chat')
 api.add_resource(PDFtoText,'/api/PDFtoText')
 
 @app.route("/")
