@@ -108,6 +108,8 @@ class PDFtoText(Resource):
 class YTSummary(Resource):
     def get(self):
         url = request.args.get('video_url')
+        if not url:
+            return {'message': 'Missing video_url'}, 400
         vid=extract.video_id(url)
         srt = YouTubeTranscriptApi.get_transcript(vid)
         subtitles=[]
